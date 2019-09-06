@@ -58,7 +58,7 @@ const authenticateUser = async (req, res, next) => {
 }
 
 //Creates a user
-router.post('/users', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     try {
         const user = req.body
         //if there is a password
@@ -80,7 +80,7 @@ router.post('/users', async (req, res, next) => {
 });
 
 //Returns the current authenticated user
-router.get('/users', authenticateUser, async (req, res) => {
+router.get('/', authenticateUser, async (req, res) => {
     const user = await User.findByPk(req.body.id, {
         attributes: {
             exclude: ['password', 'createAt', 'updateAt'],

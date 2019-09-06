@@ -6,24 +6,30 @@ const morgan = require('morgan');
 const courses = require('./routes/courses');
 const users = require('./routes/users');
 const main = require('./routes/main');
-const { sequelize } = require('./db');
-
-// variable to enable global error logging
-const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
-
-// create the Express app
+const sequelize = require('./models').sequelize;
 const app = express();
+// variable to enable global error logging
+//const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
+app.use(express.json());
+// create the Express app
+//const app = express();
 
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
-app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Welcome to the REST API project!',
+  });
+});
+//app.use(express.json());
 // TODO setup your api routes here
-app.use('/api', users);
-app.use('/api', courses);
+app.use('/api/users', users);
+app.use('/api/courses', courses);
 app.use('/api', main);
 
 //Redirect to API route
-app.get('/', (req, res) => res.redirect('/api'));
+//app.get('/', (req, res) => res.redirect('/api'));
 
 // setup a friendly greeting for the root route
 // app.get('/', (req, res) => {
@@ -38,6 +44,8 @@ app.use((req, res) => {
     message: 'Route Not Found',
   });
 });
+
+const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 
 // setup a global error handler
 app.use((err, req, res, next) => {

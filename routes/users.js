@@ -2,77 +2,94 @@
 
 const express = require('express');
 const router = express.Router();
-const dbmodule = require('../db')
-const models = dbmodule.models
-// const bcryptjs = require('bcryptjs');
-// const auth = require('basic-auth');
+const User = require('../models').User;
+const auth = require('basic-auth');
+const bcryptjs = require('bcryptjs');
 
-const { Courses, User } = models
 
-router.get('/users', (req, res) => {
-    User.findAll({
+const authenticateUser = async (req, res, next) => {
+    let message;
+    // Parse the user's credentials from the Authorization header.
+    const credentials = auth(req);
+    if (credentials) {
+        //Find user with matching email address
+        const user = await User.findOne({
+            raw: true,
+            where: {
+                emailAddress: credentials.name,
+            },
+        });
+        //If user matches email
+        if (user) {
 
-    }).then((user) => {
-        res.json(user);
-    });
+            const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
+            //If password matches
+            if (authenticated) {
+                console.log(`Authentication successful for user: ${user.firstName} ${user.lastName}`);
+                if (req.originalUrl.includes('courses')) {
+                    //If route has a courses endpoint, set request userId to matched user id
+                    req.body.userId = user.id;
+                } else if (req.originalUrl.includes('users')) {
+                    //If route has a users endpoint, set request id to matched user id
+                    req.body.id = user.id;
+                }
+            } else {
+                //Otherwise the Authentication failed
+                message = `Authentication failed for user: ${user.firstName} ${user.lastName}`;
+            }
+        } else {
+            // No email matching the Authorization header
+            message = `User not found for email address: ${credentials.name}`;
+        }
+    } else {
+        //No user credentials/authorization header available
+        message = 'Authorization header not found';
+    }
+    // Deny Access if there is anything stored in message
+    if (message) {
+        console.warn(message);
+        const err = new Error('Access Denied');
+        err.status = 401;
+        next(err);
+    } else {
+        //User authenticated
+        next();
+    }
+}
+
+//Creates a user
+router.post('/users', async (req, res, next) => {
+    try {
+        const user = req.body
+        //if there is a password
+        if (user.password) {
+            //hash the password
+            user.password = bcryptjs.hashSync(user.password);
+            //user validation for User model
+            await User.create(user);
+            res.location('/');
+            res.status(201).end();
+        } else {
+            //Response with status 401
+            res.status(401).end();
+        }
+    } catch (err) {
+        console.log('Error 500 - Internal Server Error')
+        next(err);
+    }
 });
 
+//Returns the current authenticated user
+router.get('/users', authenticateUser, async (req, res) => {
+    const user = await User.findByPk(req.body.id, {
+        attributes: {
+            exclude: ['password', 'createAt', 'updateAt'],
+        },
+    });
+    res.json(user);
+})
 
-// const authenticateUser = async (req, res, next) => {
-//     let message;
-//     const credentials = auth(req);
-//     if (credentials) {
-//         const user = await User.findOne({
-//             raw: true,
-//             where: {
-//                 emailAddress: credentials.name,
-//             },
-//         });
-//         if (user) {
-//             const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
-//             if (authenticated) {
-//                 console.log(`Authentication successful for username: ${user.firstName} ${user.lastName}`);
-//                 if (req.originalUrl.includes('users')) {
-//                     req.body.id = user.id;
-//                 } else {
-//                     message = `Authentication failure for username: ${user.firstName} ${user.lastName}`;
-//                 }
-//             } else {
-//                 message = `User not found for username: ${credentials.name}`;
-//             }
-//         } else {
-//             message = 'Auth header not found';
-//         }
-//         if (message) {
-//             console.warn(message);
-//             res.status(401).json({ message: 'Access Denied' });
-//         } else {
-//             next();
-//         }
-//     };
-
-//     router.get('/', authenticateUser, async (req, res) => {
-//         const user = await User.findByPk(req.body.id,
-//             {
-//                 attributes: {
-//                     exclude: ['password', 'createdAt', 'updatedAt'],
-//                 },
-//             }
-//         );
-//         res.json(user);
-//     })
-//     router.post('/', (req, res) => {
-//         //const user = req.body
-//         if (req.body.password) {
-//             req.body.password = bcryptjs.hashSync(req.body.password);
-//             User.create(req.body);
-//             res.location('/');
-//             res.status(201).end();
-
-//         } else {
-//             res.status(401).end();
-//         }
-
-//     })
-// }
 module.exports = router;
+
+
+

@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
@@ -9,59 +8,48 @@ module.exports = (sequelize, DataTypes) => {
     },
     firstName: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false, // disallow null
       validate: {
-        notNull: {
-          msg: 'First name is required'
-        },
+        // is: ["^[a-z]+$", 'i'],  //Allow non-numeric characters only
         notEmpty: {
-          msg: 'First name is required'
+          msg: "Please enter a valid first name - non-numeric characters only."
         }
-      },
+      }
     },
     lastName: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: {
-          msg: 'Last name is required'
-        },
+        // is:["^[a-z]+$", 'i'], //Allow non-numeric characters only
         notEmpty: {
-          msg: 'Last name is required'
+          msg: "Please enter a valid last name - non-numeric characters only."
         }
-      },
+      }
     },
     emailAddress: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
+        //is: (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(myForm.emailAddr.value)),
         isEmail: {
-          msg: 'Please enter a valid email.'
-        },
-        notNull: {
-          msg: 'Email address is required'
-        },
-        notEmpty: {
-          msg: 'Email address is required'
+          msg: "Please provide a valid email address - (e.g. mysite@ourearth.com)"
         }
-      },
+      }
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: {
-          msg: 'Password is required'
-        },
-        notEmpty: {
-          msg: 'Password is required'
+        //is: /^[A-Za-z]\w{7,14}$/
+        isNumeric: {
+          msg: 'Please enter a password between 7 to 15 characters which contain at least one numeric digit and a special character.'
         }
-      },
+      }
     }
-  }, {});
+  });
   User.associate = (models) => {
     models.User.hasMany(models.Course, {
-      as: 'user',
+      as: "user",
       foreignKey: {
         fieldName: 'userId',
         allowNull: false,

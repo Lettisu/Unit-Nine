@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     estimatedTime: {
       type: DataTypes.STRING,
       allowNull: true,
-      //DataType
+      
     },
     materialsNeeded: {
       type: DataTypes.STRING,

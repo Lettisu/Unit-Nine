@@ -59,7 +59,7 @@ const authenticateUser = async (req, res, next) => {
 }
 
 
-router.get('/', (req, res) => {
+router.get('/courses', (req, res) => {
     Course.findAll({
         attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
         include: [{
@@ -75,7 +75,7 @@ router.get('/', (req, res) => {
 });
 
 
-router.get('/:id', (req, res, next) => { // returns the course (including the user that owns the course) for the provided course ID
+router.get('/courses:id', (req, res, next) => { // returns the course (including the user that owns the course) for the provided course ID
     Course.findOne({
         where: {
             id: req.params.id
@@ -99,7 +99,7 @@ router.get('/:id', (req, res, next) => { // returns the course (including the us
     })
 })
 
-router.post('/', authenticateUser, async (req, res, next) => {
+router.post('/courses', authenticateUser, async (req, res, next) => {
     try {
         const createCourse = await Course.create(req.body);
         res.location(`/api/courses/${createCourse.id}`);
@@ -121,13 +121,13 @@ router.put('/courses/:id', authenticateUser, async (req, res, next) => {
         course.title = req.body.title;
         course.description = req.body.description;
         course.estimatedTime = req.body.estimatedTime;
-        course.materialNeeded = req.body.materialNeeded;
+        course.materialsNeeded = req.body.materialsNeeded;
         course = await course.update(req.body);
         res.status(204).end();
     } catch (err) {
         // const err = new Error(`Ooops! You don't have permission`);
         // err.status = 403;
-        console.log('Error 401 - Unauthorized Request');
+        console.log('Error 403 - Unauthorized Request');
         next(err);
     }
 

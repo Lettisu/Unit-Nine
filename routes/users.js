@@ -58,11 +58,11 @@ const authenticateUser = async (req, res, next) => {
 }
 
 //Creates a user
-router.post('/', async (req, res, next) => {
+router.post('/users', async (req, res, next) => {
     try {
         const user = req.body
         //if there is a password
-        if (user.password) {
+        if (user.password && user.firstName && user.lastName && user.emailAddress) {
             //hash the password
             user.password = bcryptjs.hashSync(user.password);
             //user validation for User model
@@ -71,11 +71,16 @@ router.post('/', async (req, res, next) => {
             res.status(201).end();
         } else {
             //Response with status 401
-            res.status(401).end();
+            res.status(400).end();
         }
     } catch (err) {
-        console.log('Error 500 - Internal Server Error')
-        next(err);
+        if (err.name === 'SequelizeValidationError') {
+            console.log('Error 400 - Validation Error')
+            res.status(400).end();
+        } else {
+            console.log('Error 500 - Internal Server Error')
+            next(err);
+        }
     }
 });
 

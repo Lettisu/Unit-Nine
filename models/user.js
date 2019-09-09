@@ -36,6 +36,10 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Email address is required'
         }
       },
+      unique: {
+        args:true,
+        msg: 'This e-mail already exists'
+      }
     },
     password: {
       type: DataTypes.STRING,

@@ -99,11 +99,17 @@ router.get('/:id', (req, res, next) => { // returns the course (including the us
     })
 })
 
-router.post('/courses', authenticateUser, async (req, res, next) => {
+router.post('/', authenticateUser, async (req, res, next) => {
     try {
-        const createCourse = await Course.create(req.body);
-        res.location(`/api/courses/${createCourse.id}`);
-        res.status(201).end();
+        if (req.body.title && req.body.description) {
+            const createCourse = await Course.create(req.body);
+            res.location(`/api/courses/${createCourse.id}`);
+            res.status(201).end();
+        } else {
+            const err = new Error('Missing Required Information');
+            err.status = 400;
+            next(err); 
+        }
     } catch (err) {
         console.log('Error 401 - Unauthorized Request');
         next(err);
@@ -111,29 +117,39 @@ router.post('/courses', authenticateUser, async (req, res, next) => {
 });
 
 //Updates a course
-router.put('/courses/:id', authenticateUser, async (req, res, next) => {
+router.put('/:id', authenticateUser, async (req, res, next) => {
     //let course = await Course.findByPk(req.params.id);
 
 
     try {
-        let course = Course.findByPk(req.params.id);
-        course.userId === req.body.userId
-        course.title = req.body.title;
-        course.description = req.body.description;
-        course.estimatedTime = req.body.estimatedTime;
-        course.materialsNeeded = req.body.materialsNeeded;
-        course = await course.update(req.body);
-        res.status(204).end();
+        let course = await Course.findByPk(req.params.id);
+        if (course.userId === req.body.userId) {
+            if (req.body.title && req.body.description) {
+                course.title = req.body.title;
+                course.description = req.body.description;
+                course.estimatedTime = req.body.estimatedTime;
+                course.materialsNeeded = req.body.materialsNeeded;
+                course = await course.update(req.body);
+                res.status(204).end();
+            } else {
+                const err = new Error('Missing Required Information');
+                err.status = 400;
+                next(err);  
+            }
+        } else {
+            console.log('Error 403 - Unauthorized Request');
+            next(err);
+        }
     } catch (err) {
         // const err = new Error(`Ooops! You don't have permission`);
         // err.status = 403;
-        console.log('Error 403 - Unauthorized Request');
+        console.log('Error 500 - Internal Server Error');
         next(err);
     }
 
 })
 //Deletes courses
-router.delete("/:id/delete", async (req, res, next) => {
+router.delete("/:id", authenticateUser, async (req, res, next) => {
     const course = await Course.findByPk(req.params.id);
     if (course.userId === req.body.userId) {
         await course.destroy();

@@ -70,7 +70,7 @@ const server = app.listen(app.get('port'), () => {
 sequelize
   .authenticate()
   .then(() => {
-    console.log("Connection has been established successfully");
+    console.log("Connection to the database has been established successfully");
     return sequelize.sync();
   })
   .catch(err => {

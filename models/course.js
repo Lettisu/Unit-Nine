@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true
     },
     title: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: {
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     description: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.TEXT,
       allowNull: false,
       validate: {
         notEmpty: {
@@ -29,7 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     estimatedTime: {
       type: DataTypes.STRING,
       allowNull: true,
-      //DataType
+      
     },
     materialsNeeded: {
       type: DataTypes.STRING,

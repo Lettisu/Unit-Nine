@@ -59,7 +59,7 @@ const authenticateUser = async (req, res, next) => {
 }
 
 
-router.get('/courses', (req, res) => {
+router.get('/', (req, res) => {
     Course.findAll({
         attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
         include: [{
@@ -75,7 +75,7 @@ router.get('/courses', (req, res) => {
 });
 
 
-router.get('/courses:id', (req, res, next) => { // returns the course (including the user that owns the course) for the provided course ID
+router.get('/:id', (req, res, next) => { // returns the course (including the user that owns the course) for the provided course ID
     Course.findOne({
         where: {
             id: req.params.id

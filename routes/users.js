@@ -58,7 +58,7 @@ const authenticateUser = async (req, res, next) => {
 }
 
 //Creates a user
-router.post('/users', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     try {
         const user = req.body
         //if there is a password

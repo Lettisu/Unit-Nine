@@ -71,16 +71,17 @@ router.post('/', async (req, res, next) => {
             res.status(201).end();
         } else {
             //Response with status 401
-            res.status(400).end();
+            res.status(400).json({ Message: 'Error 400 - Bad Request' });
         }
     } catch (err) {
         if (err.name === 'SequelizeValidationError') {
             console.log('Error 400 - Validation Error')
-            res.status(400).end();
+           
         } else {
             console.log('Error 500 - Internal Server Error')
             next(err);
         }
+    
     }
 });
 

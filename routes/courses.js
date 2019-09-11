@@ -80,6 +80,9 @@ router.get('/:id', (req, res, next) => { // returns the course (including the us
         where: {
             id: req.params.id
         },
+        attributes: {
+            exclude: ['createAt', 'updateAt'],
+        },
         attributes: ['id', 'title', 'description', 'estimatedTime', 'materialsNeeded', 'userId'],
         include: [{
             model: User,
@@ -106,9 +109,9 @@ router.post('/', authenticateUser, async (req, res, next) => {
             res.location(`/api/courses/${createCourse.id}`);
             res.status(201).end();
         } else {
-            const err = new Error('Missing Required Information');
-            err.status = 400;
-            next(err); 
+            //const err = new Error('Error 400 - Missing Required Information');
+            res.status(400).json({ Message: 'Error 400 - Missing Required Information'});
+            //next(err); 
         }
     } catch (err) {
         console.log('Error 401 - Unauthorized Request');
@@ -132,18 +135,17 @@ router.put('/:id', authenticateUser, async (req, res, next) => {
                 course = await course.update(req.body);
                 res.status(204).end();
             } else {
-                const err = new Error('Missing Required Information');
-                err.status = 400;
-                next(err);  
+                res.status(400).json({ Message: 'Error 400 - Missing Required Information'});
             }
         } else {
-            console.log('Error 403 - Unauthorized Request');
-            next(err);
+            res.status(403).json({ Message: 'Error 403 - Unauthorized Request' });
+            //console.log('Error 403 - Unauthorized Request');
+            //next(err);
         }
     } catch (err) {
         // const err = new Error(`Ooops! You don't have permission`);
         // err.status = 403;
-        console.log('Error 500 - Internal Server Error');
+        res.status('Error 500 - Internal Server Error');
         next(err);
     }
 

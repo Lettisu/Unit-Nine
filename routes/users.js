@@ -89,7 +89,7 @@ router.post('/', async (req, res, next) => {
 router.get('/', authenticateUser, async (req, res) => {
     const user = await User.findByPk(req.body.id, {
         attributes: {
-            exclude: ['password', 'createAt', 'updateAt'],
+            exclude: ['password', 'createdAt', 'updatedAt'],
         },
     });
     res.json(user);

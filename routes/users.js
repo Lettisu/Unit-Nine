@@ -76,7 +76,7 @@ router.post('/', async (req, res, next) => {
     } catch (err) {
         if (err.name === 'SequelizeValidationError') {
             console.log('Error 400 - Validation Error')
-           
+            next(err);
         } else {
             console.log('Error 500 - Internal Server Error')
             next(err);
@@ -89,7 +89,7 @@ router.post('/', async (req, res, next) => {
 router.get('/', authenticateUser, async (req, res) => {
     const user = await User.findByPk(req.body.id, {
         attributes: {
-            exclude: ['password', 'createdAt', 'updatedAt'],
+            exclude: ['password', 'createAt', 'updateAt'],
         },
     });
     res.json(user);

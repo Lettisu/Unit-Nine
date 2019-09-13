@@ -152,16 +152,21 @@ router.put('/:id', authenticateUser, async (req, res, next) => {
 })
 //Deletes courses
 router.delete("/:id", authenticateUser, async (req, res, next) => {
-    const course = await Course.findByPk(req.params.id);
-    if (course.userId === req.body.userId) {
-        await course.destroy();
-        res.status(204).end();
-    } else {
-        const err = new Error(`Ooops! You don't have permission`);
-        err.status = 403;
+    try {
+        const course = await Course.findByPk(req.params.id);
+        if (course.userId === req.body.userId) {
+            await course.destroy();
+            res.status(204).end();
+        } else {
+            const err = new Error(`Ooops! You don't have permission`);
+            err.status = 403;
+            next(err);
+        }
+    
+    } catch (err) {
+        res.status('Error 500 - Internal Server Error');
         next(err);
     }
-
 })
 
 
